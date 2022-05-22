@@ -23,6 +23,17 @@ button:focus {
     /* padding: 10px; */
 }
 
+/* When there is no notes added (first page analogy) */
+.no-notes {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: whitesmoke;
+}
+
 .sidebar {
     width: 20%;
     height: 100vh;
@@ -44,17 +55,24 @@ button:focus {
 
 .new-note {
     cursor: pointer;
-    background-color: #4A4E74;
+    background-color: #0c7489;
     border: none;
     color: white;
     border-radius: 3px;
     height: 30px;
     width: 30px;
+    transition: transform 0.1s;
 }
+
+.new-note:hover{
+    transform: scale(1.2);
+    font-size: 1rem;
+}
+
 
 .first-note {
     cursor: pointer;
-    background-color: #4A4E74;
+    background-color: #0c7489;
     border: none;
     color: white;
     border-radius: 3px;
@@ -95,14 +113,14 @@ button:focus {
     font-size: 0.8rem;
     font-weight: 400;
     line-height: 1.2rem;
-    color: #4A4E74;
+    color: #0c7489;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .selected-note {
-    background-color: #4A4E74;
+    background-color: #0c7489;
 }
 
 .selected-note .text-snippet {
@@ -112,7 +130,6 @@ button:focus {
 
 .gutter {
     background-color: #eee;
-
     background-repeat: no-repeat;
     background-position: 50%;
 }
@@ -129,12 +146,64 @@ button:focus {
     display: flex;
 }
 
-.no-notes {
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: whitesmoke;
+
+/* Delete button css */
+
+.delete-btn {
+    display: none;
+    background: none;
+    border: none;
 }
+
+.title:hover > .delete-btn {
+    display: block;
+}
+
+.trash-icon {
+    cursor: pointer;
+}
+
+ .gg-trash {
+    box-sizing: border-box;
+    position: relative;
+    display: block;
+    transform: scale(var(--ggs,1));
+    width: 10px;
+    height: 12px;
+    border: 2px solid transparent;
+    box-shadow:
+        0 0 0 2px,
+        inset -2px 0 0,
+        inset 2px 0 0;
+    border-bottom-left-radius: 1px;
+    border-bottom-right-radius: 1px;
+    margin-top: 4px
+}
+
+.gg-trash::after,
+.gg-trash::before {
+    content: "";
+    display: block;
+    box-sizing: border-box;
+    position: absolute
+}
+
+.gg-trash::after {
+    background: currentColor;
+    border-radius: 3px;
+    width: 16px;
+    height: 2px;
+    top: -4px;
+    left: -5px
+}
+
+.gg-trash::before {
+    width: 10px;
+    height: 4px;
+    border: 2px solid;
+    border-bottom: transparent;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    top: -7px;
+    left: -2px
+} 
