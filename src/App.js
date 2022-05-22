@@ -41,7 +41,7 @@ export default function App() {
     setNotes(oldNotes => {
 
       // placing the current modified note at the top of the list
-      //  my way 
+      // my way 
       const currentNote = oldNotes.find(note => note.id === currentNoteId);
       const otherNotes = oldNotes.filter(note => note.id !== currentNoteId);
       return [{ ...currentNote, body: text }, ...otherNotes]
@@ -66,12 +66,8 @@ export default function App() {
   }
 
   function deleteNote(event, noteId) {
-
-    console.log('event', event, 'noteId', noteId);
     event.stopPropagation()
-    // Your code here
     setNotes(oldNotes => oldNotes.filter(note => note.id != noteId));
-
   }
 
   function findCurrentNote() {
@@ -116,7 +112,6 @@ export default function App() {
               Create one now
             </button>
           </div>
-
       }
     </main>
   )
