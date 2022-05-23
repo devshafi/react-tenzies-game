@@ -1,117 +1,84 @@
-import React from "react"
-import Sidebar from "./components/Sidebar"
-import Editor from "./components/Editor"
-import Split from "react-split"
-import { nanoid } from "nanoid"
+import { useEffect, useState } from "react";
+import Die from "./components/Die"
+import { nanoid } from "nanoid";
+import Confetti from 'react-confetti'
 
-import { useState, useEffect } from "react";
 
 export default function App() {
 
+  const [dice, setDice] = useState(allNewDice());
+  const [tenzies, setTenzies] = useState(false);
 
-  const [notes, setNotes] = useState(
-    () => {
-      // lazy loading notes array from local storage in first load
-      const notesFromLocalStorage = JSON.parse(localStorage.getItem("notes"));
-      return notesFromLocalStorage || []
-    }
-  )
+  function resetGame() {
+    setTenzies(false);
+    setDice(allNewDice())
+  }
 
-  const [currentNoteId, setCurrentNoteId] = useState(
-    (notes[0] && notes[0].id) || ""
-  )
-
-  //saving notes in local storage
   useEffect(() => {
-    localStorage.setItem('notes', JSON.stringify(notes))
-  }, [notes])
-
-  function createNewNote() {
-    const newNote = {
-      id: nanoid(),
-      body: `# Note ${notes.length + 1} title`
+    const allHeld = dice.every(die => die.isHeld);
+    const firstValue = dice[0].value;
+    const allValueSame = dice.every(die => die.value === firstValue);
+    if (allHeld && allValueSame) {
+      console.log('You won!!!!');
+      setTenzies(true);
     }
-    setNotes(prevNotes => [newNote, ...prevNotes])
-    setCurrentNoteId(newNote.id)
+  }, [dice])
+
+  // generate a single die
+  function generateNewDie() {
+    const randomNum = Math.floor(Math.random() * 6 + 1);
+    return {
+      value: randomNum,
+      isHeld: false,
+      id: nanoid()
+    }
   }
 
-  function updateNote(text) {
+  // 10 random dice for initial state value
+  function allNewDice() {
+    const dice = [];
+    for (let i = 0; i < 10; i++) {
+      dice.push(generateNewDie())
+    }
+    return dice
+  }
 
-    setNotes(oldNotes => {
-
-      // placing the current modified note at the top of the list
-      // my way 
-      const currentNote = oldNotes.find(note => note.id === currentNoteId);
-      const otherNotes = oldNotes.filter(note => note.id !== currentNoteId);
-      return [{ ...currentNote, body: text }, ...otherNotes]
-
+  // only generate new one for the dice
+  // that are not hold
+  function rollDies() {
+    setDice(prevDice => {
+      return prevDice.map(die => {
+        return die.isHeld === true ? die : generateNewDie();
+      })
     })
-
-    // instructor's way
-    // setNotes(oldNotes => {
-    //   const newArray = []
-    //   for (let i = 0; i < oldNotes.length; i++) {
-    //     const oldNote = oldNotes[i]
-    //     if (oldNote.id === currentNoteId) {
-    //       newArray.unshift({ ...oldNote, body: text })
-    //     } else {
-    //       newArray.push(oldNote)
-    //     }
-    //   }
-    //   return newArray
-    // })
-
-
   }
 
-  function deleteNote(event, noteId) {
-    event.stopPropagation()
-    setNotes(oldNotes => oldNotes.filter(note => note.id !== noteId));
+  // flip the hold
+  function toggleIsHeld(id) {
+    setDice(prevDice => {
+      return prevDice.map(die => {
+        return die.id === id ? { ...die, isHeld: !die.isHeld } : die
+      })
+    })
   }
 
-  function findCurrentNote() {
-    return notes.find(note => {
-      return note.id === currentNoteId
-    }) || notes[0]
-  }
+  const diesElements = dice.map(die => {
+    return <Die
+      key={die.id}
+      {...die}
+      toggleIsHeld={toggleIsHeld}
+    />
+  })
 
   return (
     <main>
-      {
-        notes.length > 0
-          ?
-          <Split
-            sizes={[20, 70]}
-            direction="horizontal"
-            className="split"
-          >
-            <Sidebar
-              notes={notes}
-              currentNote={findCurrentNote()}
-              setCurrentNoteId={setCurrentNoteId}
-              newNote={createNewNote}
-              deleteNote={deleteNote}
-            />
-            {
-              currentNoteId &&
-              notes.length > 0 &&
-              <Editor
-                currentNote={findCurrentNote()}
-                updateNote={updateNote}
-              />
-            }
-          </Split>
-          :
-          <div className="no-notes">
-            <h1>You have no notes</h1>
-            <button
-              className="first-note"
-              onClick={createNewNote}
-            >
-              Create one now
-            </button>
-          </div>
-      }
-    </main>
-  )
+      {tenzies && <Confetti numberOfPieces={100} gravity={0.1} />}
+      <h1 className="title">Tenzies</h1>
+      <p className="instructions">Roll until all dice are the same. Click each die to freeze it at its current value between rolls.</p>
+      <div className="die-container">
+        {diesElements}
+      </div>
+      <button onClick={tenzies ? resetGame : rollDies} className="btn-roll-dies">{tenzies ? 'New Game' : 'Roll'}</button>
+    </main>)
+
 }
